@@ -1,0 +1,56 @@
+'use strict';
+
+const File = use('App/Models/File');
+const Helpers = use('Helpers');
+
+class FileController {
+  async store({ request, response }) {
+    try {
+      // eslint-disable-next-line no-useless-return
+      if (!request.file('file')) return;
+      const upload = request.file('file', { size: '2mb' });
+      const fileName = `${Date.now()}.${upload.subtype}`;
+      console.log(fileName);
+
+      await upload.move(Helpers.tmpPath('uploads'), { name: fileName });
+
+      if (!upload.moved()) {
+        throw upload.error();
+      }
+
+      const beforeFile = await File.findBy('name', upload.clientName);
+      if (beforeFile) {
+        console.log('alo');
+        return response.status('409').send({
+          error: { message: 'Esse arquivo já existe no banco de dados' },
+        });
+      }
+
+      const file = await File.create({
+        file: fileName,
+        name: upload.clientName,
+        type: upload.type,
+        subtype: upload.subtype,
+      });
+
+      return file;
+    } catch (err) {
+      return response
+        .status(err.status)
+        .send({ error: { message: 'Erro no upload de arquivos' } });
+    }
+  }
+
+  async index() {
+    const files = File.all();
+    return files;
+  }
+
+  async show({ params, response }) {
+    const file = await File.findOrFail(params.id);
+
+    return response.download(Helpers.tmpPath(`uploads/${file.file}`));
+  }
+}
+
+module.exports = FileController;
