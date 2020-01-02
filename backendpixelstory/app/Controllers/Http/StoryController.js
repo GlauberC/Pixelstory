@@ -3,8 +3,11 @@
 const Story = use('App/Models/Story');
 
 class StoryController {
-  async index() {
-    const stories = await Story.all();
+  async index({ request }) {
+    const { page } = request.get();
+    const stories = await Story.query()
+      .with('scenes')
+      .paginate(page);
     return stories;
   }
 

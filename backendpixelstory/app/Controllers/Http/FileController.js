@@ -10,7 +10,6 @@ class FileController {
       if (!request.file('file')) return;
       const upload = request.file('file', { size: '2mb' });
       const fileName = `${Date.now()}.${upload.subtype}`;
-      console.log(fileName);
 
       await upload.move(Helpers.tmpPath('uploads'), { name: fileName });
 
@@ -20,7 +19,6 @@ class FileController {
 
       const beforeFile = await File.findBy('name', upload.clientName);
       if (beforeFile) {
-        console.log('alo');
         return response.status('409').send({
           error: { message: 'Esse arquivo já existe no banco de dados' },
         });
