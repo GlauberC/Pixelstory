@@ -1,20 +1,51 @@
 import styled from 'styled-components/native';
 import {RectButton} from 'react-native-gesture-handler';
 
-export const Container = styled.View`
-  margin: 10px;
+import {colors} from '../../styles/mainStyles';
+import {
+  InputDescription,
+  ViewInputDescription,
+} from '../../styles/globalComponents';
+
+export const Title = styled.Text`
+  font-size: 18px;
+  color: ${colors.sec2};
 `;
-export const ViewStory = styled.View``;
-export const Header = styled.View`
+export const HeaderStory = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+`;
+export const TextTime = styled.Text`
+  font-size: 12px;
+  color: ${colors.sec1};
+`;
+
+export const ViewContent = styled.View`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 `;
-export const Title = styled.Text``;
-export const BtnStory = styled(RectButton)``;
-export const TextBtnStory = styled.Text``;
-export const ViewDescription = styled.View``;
-export const TextDescription = styled.Text``;
-export const ViewNewStory = styled.View``;
-export const InputTitleNewStory = styled.TextInput``;
-export const InputDescriptionNewStory = styled.TextInput``;
+export const InputTitleNewStory = styled(InputDescription)`
+  flex: 1;
+`;
+
+export const TextErrSuc = styled.Text`
+  text-align: center;
+  text-transform: uppercase;
+  color: ${props => (props.errMode ? colors.err1 : colors.suc1)};
+`;
+
+export const ViewInputTitle = styled(ViewInputDescription)`
+  flex: 6;
+`;
+
+export const BtnStory = styled(RectButton)`
+  background: ${colors.sec2};
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 20px;
+`;

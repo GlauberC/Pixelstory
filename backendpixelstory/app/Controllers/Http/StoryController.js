@@ -1,11 +1,13 @@
 'use strict';
 
 const Story = use('App/Models/Story');
+const Database = use('Database');
 
 class StoryController {
   async index({ request }) {
     const { page } = request.get();
     const stories = await Story.query()
+      .orderBy('updated_at', 'desc')
       .with('scenes')
       .paginate(page);
     return stories;
