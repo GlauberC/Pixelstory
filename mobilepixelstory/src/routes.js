@@ -11,7 +11,12 @@ const StackNav = createAppContainer(
   createStackNavigator(
     {
       Stories,
-      Scenes,
+      Scenes: {
+        screen: Scenes,
+        navigationOptions: ({navigation}) => ({
+          title: navigation.getParam('titleStory'),
+        }),
+      },
       Scene,
     },
     {
@@ -20,6 +25,7 @@ const StackNav = createAppContainer(
         headerStyle: {
           backgroundColor: colors.prim1,
         },
+        headerTintColor: colors.sec1,
         headerTitleStyle: {
           color: colors.sec1,
           fontSize: 24,

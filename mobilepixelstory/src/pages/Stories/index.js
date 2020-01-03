@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {FlatList, View} from 'react-native';
+import {FlatList, View, ActivityIndicator} from 'react-native';
 import {NavigationEvents} from 'react-navigation';
 import Icon from 'react-native-vector-icons/Ionicons';
 import api from '../../services/api';
@@ -14,7 +14,6 @@ import {
   ViewContent,
   InputTitleNewStory,
   ViewInputTitle,
-  TextErrSuc,
 } from './styles';
 
 import {
@@ -26,6 +25,7 @@ import {
   InputDescription,
   ViewInputDescription,
   Sep,
+  TextErrSuc,
 } from '../../styles/globalComponents';
 
 export default function Stories({navigation}) {
@@ -33,24 +33,38 @@ export default function Stories({navigation}) {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [firstLoading, setFirstLoading] = useState(false);
   const [errMode, setErrMode] = useState(false);
   const [msgErrSuc, setMsgErrSuc] = useState('');
   const [titleNewStory, setTitleNewStory] = useState('');
   const [descriptionNewStory, setDescriptionNewStory] = useState('');
 
-  function errMsgChange(msg) {
-    if (msg !== '') {
-      setErrMode(true);
-      setMsgErrSuc(msg);
-    }
-  }
-  function successMsgChange(msg) {
+  const successMsgChange = useCallback(msg => {
     setErrMode(false);
     setMsgErrSuc(msg);
-  }
+    if (msg !== '') {
+      setTimeout(() => {
+        successMsgChange('');
+      }, 3000);
+    }
+  }, []);
+
+  const errMsgChange = useCallback(
+    msg => {
+      if (msg !== '') {
+        setErrMode(true);
+        setMsgErrSuc(msg);
+        setTimeout(() => {
+          successMsgChange('');
+        }, 3000);
+      }
+    },
+    [successMsgChange],
+  );
 
   const startDataLoading = useCallback(async () => {
     try {
+      setFirstLoading(true);
       setPage(1);
       const response = await api.get(`/story?page=1`);
       setLastPage(response.data.lastPage);
@@ -59,14 +73,16 @@ export default function Stories({navigation}) {
         formattedDate: story.created_at.slice(0, 10),
       }));
       setStories(data);
+      setFirstLoading(false);
     } catch (err) {
       errMsgChange('There was an error on loading stories');
     }
-  }, []);
+  }, [errMsgChange]);
+
   useEffect(() => {
     startDataLoading();
     successMsgChange('');
-  }, [startDataLoading]);
+  }, [startDataLoading, successMsgChange]);
 
   async function handleNextPage() {
     if (!loading && page < lastPage) {
@@ -108,60 +124,78 @@ export default function Stories({navigation}) {
 
   return (
     <Container>
-      <View>
-        <ViewInputButton>
-          <ViewInputTitle>
-            <Icon name="md-bookmarks" size={28} color={colors.tert1} />
-            <InputTitleNewStory
-              placeholder="New Story Title"
-              value={titleNewStory}
-              onChangeText={text => setTitleNewStory(text)}
-            />
-          </ViewInputTitle>
-          <View style={{flex: 1}}>
-            <BtnAddStory onPress={handleAddStory}>
-              <Icon name="md-add" size={28} color={colors.sec2} />
-            </BtnAddStory>
-          </View>
-        </ViewInputButton>
-        <ViewInputDescription>
-          <Icon name="md-list-box" size={28} color={colors.tert1} />
-          <InputDescription
-            multiline
-            numberOfLines={2}
-            value={descriptionNewStory}
-            onChangeText={text => setDescriptionNewStory(text)}
-            placeholder="Description"
-          />
-        </ViewInputDescription>
-      </View>
-      {msgErrSuc !== '' && (
-        <TextErrSuc errMode={errMode}>{msgErrSuc}</TextErrSuc>
-      )}
+      <NavigationEvents onDidFocus={() => startDataLoading()} />
 
-      <Sep />
-      <FlatList
-        data={stories}
-        keyExtractor={data => String(data.id)}
-        onEndReached={handleNextPage}
-        onEndReachedThreshold={0.1}
-        renderItem={({item}) => (
-          <ViewStory>
-            <HeaderStory>
-              <Title>{item.title}</Title>
-              <TextTime>{item.formattedDate}</TextTime>
-            </HeaderStory>
-            <ViewContent>
-              <TextDescription>{item.description}</TextDescription>
-              <View style={{flex: 1}}>
-                <BtnStory>
-                  <Icon name="md-book" size={24} color={colors.prim2} />
-                </BtnStory>
+      {firstLoading ? (
+        <ActivityIndicator size="large" color={colors.prim2} />
+      ) : (
+        <FlatList
+          ListHeaderComponent={
+            <>
+              <View>
+                <ViewInputButton>
+                  <ViewInputTitle>
+                    <Icon name="md-bookmarks" size={28} color={colors.tert1} />
+                    <InputTitleNewStory
+                      placeholder="New Story Title"
+                      value={titleNewStory}
+                      onChangeText={text => setTitleNewStory(text)}
+                    />
+                  </ViewInputTitle>
+                  <View style={{flex: 1}}>
+                    <BtnAddStory onPress={handleAddStory}>
+                      <Icon name="md-add" size={28} color={colors.sec2} />
+                    </BtnAddStory>
+                  </View>
+                </ViewInputButton>
+                <ViewInputDescription>
+                  <Icon name="md-list-box" size={28} color={colors.tert1} />
+                  <InputDescription
+                    multiline
+                    numberOfLines={2}
+                    value={descriptionNewStory}
+                    onChangeText={text => setDescriptionNewStory(text)}
+                    placeholder="Description"
+                  />
+                </ViewInputDescription>
               </View>
-            </ViewContent>
-          </ViewStory>
-        )}
-      />
+              {msgErrSuc !== '' && (
+                <TextErrSuc errMode={errMode}>{msgErrSuc}</TextErrSuc>
+              )}
+
+              <Sep />
+            </>
+          }
+          data={stories}
+          keyExtractor={data => String(data.id)}
+          onEndReached={handleNextPage}
+          onEndReachedThreshold={0.1}
+          renderItem={({item}) => (
+            <ViewStory>
+              <HeaderStory>
+                <Title>{item.title}</Title>
+                <TextTime>{item.formattedDate}</TextTime>
+              </HeaderStory>
+              <ViewContent>
+                <TextDescription>{item.description}</TextDescription>
+                <View style={{flex: 1}}>
+                  <BtnStory
+                    onPress={() =>
+                      navigation.navigate('Scenes', {
+                        idStory: item.id,
+                        titleStory: item.title,
+                        descriptionStory: item.description,
+                      })
+                    }>
+                    <Icon name="md-book" size={24} color={colors.prim2} />
+                  </BtnStory>
+                </View>
+              </ViewContent>
+            </ViewStory>
+          )}
+        />
+      )}
+      {loading && <ActivityIndicator size="large" color={colors.prim2} />}
     </Container>
   );
 }

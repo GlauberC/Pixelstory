@@ -31,12 +31,6 @@ export const InputTitleNewStory = styled(InputDescription)`
   flex: 1;
 `;
 
-export const TextErrSuc = styled.Text`
-  text-align: center;
-  text-transform: uppercase;
-  color: ${props => (props.errMode ? colors.err1 : colors.suc1)};
-`;
-
 export const ViewInputTitle = styled(ViewInputDescription)`
   flex: 6;
 `;

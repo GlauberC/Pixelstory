@@ -4,7 +4,7 @@ import {colors} from './mainStyles';
 
 export const Container = styled.View`
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   background: ${colors.sec1};
 `;
 export const ViewInputButton = styled.View`
@@ -61,4 +61,10 @@ export const ContainerListItem = styled.View`
   border-radius: 4px;
   elevation: 4;
   margin-bottom: 10px;
+`;
+
+export const TextErrSuc = styled.Text`
+  text-align: center;
+  text-transform: uppercase;
+  color: ${props => (props.errMode ? colors.err1 : colors.suc1)};
 `;
