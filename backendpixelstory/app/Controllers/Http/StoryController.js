@@ -1,7 +1,6 @@
 'use strict';
 
 const Story = use('App/Models/Story');
-const Database = use('Database');
 
 class StoryController {
   async index({ request }) {

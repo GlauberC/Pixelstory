@@ -20,7 +20,7 @@ class FileController {
       const beforeFile = await File.findBy('name', upload.clientName);
       if (beforeFile) {
         return response.status('409').send({
-          error: { message: 'Esse arquivo já existe no banco de dados' },
+          error: { message: 'This filename is already in database' },
         });
       }
 

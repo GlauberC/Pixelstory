@@ -32,3 +32,5 @@ Route.post('story/:story_id/scene', 'SceneController.store');
 Route.get('story/:story_id/scene', 'SceneController.index');
 Route.put('scene/:id', 'SceneController.update');
 Route.delete('scene/:id', 'SceneController.destroy');
+
+Route.put('scene/:id/refresh', 'RefreshController.update');

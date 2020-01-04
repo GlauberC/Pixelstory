@@ -23,6 +23,11 @@ class SceneSchema extends Schema {
         .onUpdate('CASCADE')
         .onDelete('SET NULL');
       table.text('description');
+      table
+        .integer('count_refresh')
+        .defaultTo(3)
+        .unsigned()
+        .notNullable();
       table.timestamps();
     });
   }
