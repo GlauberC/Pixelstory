@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {View, Alert, FlatList, ActivityIndicator} from 'react-native';
+import {NavigationEvents} from 'react-navigation';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import api from '../../services/api';
@@ -136,8 +137,28 @@ export default function Scenes({navigation}) {
     }
   }
 
+  async function handleAddScene() {
+    try {
+      const responsePick = await api.get('/pick');
+      const data = {file_id: responsePick.data.id, description: ''};
+      const response = await api.post(`story/${idStory}/scene`, data);
+      const newData = {
+        dataScene: {...response.data, count_refresh: 3},
+        idStory,
+      };
+      navigation.navigate('Scene', newData);
+    } catch (err) {
+      errMsgChange('There was an error on creating a new scene');
+    }
+  }
+  async function handleEditScene(data) {
+    const newData = {dataScene: data, idStory};
+    navigation.navigate('Scene', newData);
+  }
+
   return (
     <Container>
+      <NavigationEvents onDidFocus={() => startDataLoading()} />
       {firstLoading ? (
         <ActivityIndicator size="large" color={colors.prim2} />
       ) : (
@@ -190,7 +211,7 @@ export default function Scenes({navigation}) {
               </ViewContent>
               <ViewFooterScene>
                 <TextTime>{item.formattedDate}</TextTime>
-                <BtnEditScene>
+                <BtnEditScene onPress={() => handleEditScene(item)}>
                   <Icon name="md-create" size={22} color={colors.prim2} />
                 </BtnEditScene>
               </ViewFooterScene>
@@ -199,7 +220,7 @@ export default function Scenes({navigation}) {
           ListFooterComponent={
             <>
               <Sep />
-              <BtnAddScene>
+              <BtnAddScene onPress={handleAddScene}>
                 <Icon name="md-add" size={28} color={colors.sec2} />
               </BtnAddScene>
             </>

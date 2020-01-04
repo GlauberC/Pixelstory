@@ -6,6 +6,7 @@ class SceneController {
   async index({ params }) {
     const scenes = await Scene.query()
       .where('story_id', params.story_id)
+      .orderBy('created_at', 'asc')
       .with('file')
       .fetch();
     return scenes;
@@ -17,6 +18,7 @@ class SceneController {
       ...data,
       story_id: params.story_id,
     });
+    await scene.load('file');
     return scene;
   }
 
@@ -24,8 +26,8 @@ class SceneController {
     const scene = await Scene.findOrFail(params.id);
     const data = request.only(['description', 'file_id']);
     scene.merge(data);
-
     await scene.save();
+
     return scene;
   }
 
